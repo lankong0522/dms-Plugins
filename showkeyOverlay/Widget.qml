@@ -38,8 +38,16 @@ DesktopPluginComponent {
     property int cardHorizontalPadding: normalizeInt(pluginData.cardHorizontalPadding, 18)
     property int cardVerticalPadding: normalizeInt(pluginData.cardVerticalPadding, 8)
     property int cardSpacing: normalizeInt(pluginData.cardSpacing, 8)
+    // Position/layout settings. Existing rightMarginPx/bottomMarginPx keys are kept
+    // for backward compatibility and now mean horizontal/vertical margin.
     property int rightMarginPx: normalizeInt(pluginData.rightMarginPx, 8)
     property int bottomMarginPx: normalizeInt(pluginData.bottomMarginPx, 8)
+    property string overlayPosition: String(pluginData.overlayPosition ?? "bottom-right")
+    property bool newestNearAnchor: pluginData.newestNearAnchor ?? true
+    property bool alignRight: root.overlayPosition.indexOf("right") !== -1
+    property bool alignBottom: root.overlayPosition.indexOf("bottom") !== -1
+    property bool reverseLines: root.alignBottom ? !root.newestNearAnchor : root.newestNearAnchor
+    property var arrangedLines: root.reverseLines ? root.outputLines.slice().reverse() : root.outputLines
 
     property string pluginUrl: ""
     property string pluginDir: ""
@@ -184,16 +192,15 @@ DesktopPluginComponent {
         Column {
             id: keyColumn
 
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.rightMargin: root.rightMarginPx
-            anchors.bottomMargin: root.bottomMarginPx
-
-            width: parent.width - root.rightMarginPx
+            // The column is positioned manually instead of using anchors so the
+            // user can switch between the four corners at runtime.
+            width: Math.max(0, parent.width - root.rightMarginPx * 2)
+            x: root.alignRight ? parent.width - width - root.rightMarginPx : root.rightMarginPx
+            y: root.alignBottom ? parent.height - height - root.bottomMarginPx : root.bottomMarginPx
             spacing: root.cardSpacing
 
             Repeater {
-                model: root.outputLines
+                model: root.arrangedLines
 
                 delegate: Item {
                     id: keyItem
@@ -204,7 +211,7 @@ DesktopPluginComponent {
                     Rectangle {
                         id: keyCard
 
-                        anchors.right: parent.right
+                        x: root.alignRight ? keyItem.width - width : 0
                         width: keyText.implicitWidth + root.cardHorizontalPadding * 2
                         height: keyText.implicitHeight + root.cardVerticalPadding * 2
                         radius: root.boxRadius

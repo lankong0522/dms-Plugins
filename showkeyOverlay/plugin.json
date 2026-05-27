@@ -1,8 +1,8 @@
 {
   "id": "showkeyOverlay",
-  "name": "SKeyboard Monitor",
-  "description": "Monitor keyboard input and show recent keystrokes as a desktop overlay.",
-  "version": "1.3.0",
+  "name": "Keyboard Monitor",
+  "description": "Monitor keyboard input and show recent keystrokes as a configurable desktop overlay.",
+  "version": "1.4.0",
   "author": "local",
   "type": "desktop",
   "capabilities": [

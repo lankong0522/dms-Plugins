@@ -24,6 +24,24 @@ PluginSettings {
     property int boxBorderOpacity: root.loadValue("boxBorderOpacity", 80)
     property int boxBorderWidth: root.loadValue("boxBorderWidth", 2)
     property int boxRadius: root.loadValue("boxRadius", 12)
+    property string overlayPosition: String(root.loadValue("overlayPosition", "bottom-right"))
+    property bool newestNearAnchor: root.loadValue("newestNearAnchor", true)
+    property int rightMarginPx: root.loadValue("rightMarginPx", 8)
+    property int bottomMarginPx: root.loadValue("bottomMarginPx", 8)
+
+    function positionToIndex(position) {
+        if (position === "top-left") return 0
+        if (position === "top-right") return 1
+        if (position === "bottom-left") return 2
+        return 3
+    }
+
+    function indexToPosition(index) {
+        if (index === 0) return "top-left"
+        if (index === 1) return "top-right"
+        if (index === 2) return "bottom-left"
+        return "bottom-right"
+    }
 
     function sanitizeIntInput(textValue, fallback) {
         const cleaned = String(textValue ?? "").replace(/[^0-9]/g, "")
@@ -40,7 +58,7 @@ PluginSettings {
     }
 
     StyledText {
-        text: I18n.tr("ShowKey Overlay")
+        text: I18n.tr("Keyboard Monitor")
         font.pixelSize: Theme.fontSizeLarge
         font.weight: Font.Medium
         color: Theme.surfaceText
@@ -135,6 +153,85 @@ PluginSettings {
                     text = minInterval
                 }
             }
+        }
+
+        StyledText {
+            text: I18n.tr("Layout")
+            font.pixelSize: Theme.fontSizeLarge
+            font.weight: Font.Medium
+            color: Theme.surfaceText
+        }
+
+        Column {
+            spacing: Theme.spacingXS
+            width: parent.width
+
+            StyledText {
+                text: I18n.tr("Overlay position")
+                font.pixelSize: Theme.fontSizeMedium
+                font.weight: Font.Medium
+                color: Theme.surfaceText
+            }
+
+            ComboBox {
+                id: positionCombo
+                width: parent.width
+                height: 40
+                model: [
+                    I18n.tr("Top left"),
+                    I18n.tr("Top right"),
+                    I18n.tr("Bottom left"),
+                    I18n.tr("Bottom right")
+                ]
+                currentIndex: root.positionToIndex(overlayPosition)
+                onActivated: {
+                    overlayPosition = root.indexToPosition(currentIndex)
+                }
+            }
+        }
+
+        Column {
+            spacing: Theme.spacingS
+            width: parent.width
+
+            CheckBox {
+                id: newestNearAnchorToggle
+                checked: newestNearAnchor
+                anchors.left: parent.left
+                leftPadding: Theme.spacingS
+                Material.accent: Theme.primary
+
+                Component.onCompleted: {
+                    this.indicator.anchors.left = this.left
+                    this.indicator.anchors.leftMargin = Theme.spacingM
+                }
+
+                contentItem: StyledText {
+                    text: I18n.tr("Newest entry near selected corner")
+                    font.pixelSize: Theme.fontSizeMedium
+                    color: Theme.surfaceText
+                    leftPadding: newestNearAnchorToggle.indicator.width + Theme.spacingM + Theme.spacingS
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+        }
+
+        SliderSetting {
+            settingKey: "rightMarginPx"
+            label: I18n.tr("Horizontal margin")
+            defaultValue: rightMarginPx
+            minimum: 0
+            maximum: 200
+            unit: "px"
+        }
+
+        SliderSetting {
+            settingKey: "bottomMarginPx"
+            label: I18n.tr("Vertical margin")
+            defaultValue: bottomMarginPx
+            minimum: 0
+            maximum: 200
+            unit: "px"
         }
 
         StyledText {
@@ -328,7 +425,7 @@ PluginSettings {
         }
 
         DankButton {
-            text: I18n.tr("Save ShowKey settings")
+            text: I18n.tr("Save Keyboard Monitor settings")
             width: parent.width
             onClicked: {
                 entryLifetime = sanitizeDecimalInput(entryLifetimeField.text, "1.8")
@@ -341,6 +438,8 @@ PluginSettings {
                 root.saveValue("minInterval", minInterval)
                 root.saveValue("useThemePrimary", themePrimaryToggle.checked)
                 root.saveValue("customTextColor", customTextColor)
+                root.saveValue("overlayPosition", overlayPosition)
+                root.saveValue("newestNearAnchor", newestNearAnchorToggle.checked)
                 root.saveValue("enableOutline", outlineToggle.checked)
                 root.saveValue("enableBox", boxToggle.checked)
                 root.saveValue("enableBoxBorder", boxBorderToggle.checked)
