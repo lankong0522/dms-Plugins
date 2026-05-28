@@ -21,6 +21,8 @@
 
 ## 基础介绍
 
+## 插件预览
+
 ## 主要功能
 
 ## 依赖
@@ -55,6 +57,16 @@
 `插件名称` 是一个用于 Dank Material Shell（DMS）的某某插件。它用于……。
 
 插件默认读取……。插件不会修改……。
+```
+
+### 插件预览
+
+展示插件实际运行效果。预览图统一放在插件目录下，文件名使用 `preview.png`。
+
+写法：
+
+```markdown
+![插件文件夹名称 预览](preview.png)
 ```
 
 ### 主要功能
@@ -129,6 +141,7 @@ chmod +x ~/.config/DankMaterialShell/plugins/插件文件夹名称/脚本名称
 ```text
 插件文件夹名称/
 ├── plugin.json
+├── preview.png
 ├── Widget.qml
 ├── Settings.qml
 └── README.md
@@ -139,6 +152,7 @@ chmod +x ~/.config/DankMaterialShell/plugins/插件文件夹名称/脚本名称
 | 文件 | 作用 |
 |---|---|
 | `plugin.json` | DMS 插件清单，定义插件 ID、名称、类型、入口组件、设置页、权限和兼容版本等信息。 |
+| `preview.png` | 插件预览图，用于在 README 中展示插件实际效果。 |
 | `README.md` | 插件说明文档。 |
 
 ### 运行时中间文件
@@ -200,6 +214,10 @@ rm -f /tmp/临时文件名
 
 插件……。插件不会修改……。
 
+## 插件预览
+
+![插件文件夹名称 预览](preview.png)
+
 ## 主要功能
 
 - ……
@@ -260,6 +278,7 @@ dms restart
 ```text
 插件文件夹名称/
 ├── plugin.json
+├── preview.png
 └── README.md
 ```
 
@@ -268,6 +287,7 @@ dms restart
 | 文件 | 作用 |
 |---|---|
 | `plugin.json` | DMS 插件清单，定义插件 ID、名称、类型、入口组件、设置页、权限和兼容版本等信息。 |
+| `preview.png` | 插件预览图，用于在 README 中展示插件实际效果。 |
 | `README.md` | 插件说明文档。 |
 
 ## 运行时中间文件

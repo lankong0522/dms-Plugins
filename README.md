@@ -45,10 +45,14 @@ dms ipc call plugins reload <插件文件夹名>
 
 桌面键盘显示插件。它通过 `showmethekey-cli` 获取键盘输入事件，并在 DMS 桌面组件中显示按键历史。
 
+![skeyboardMonitor 预览](skeyboardMonitor/preview.png)
+
 详细说明见 [`skeyboardMonitor/README.md`](skeyboardMonitor/README.md)。
 
 ### mihomoManager
 
 DankBar / Control Center 代理管理插件。它面向本机用户级 `mihomo.service`，提供服务控制、节点切换、延迟测试和状态展示等功能。
+
+![mihomoManager 预览](mihomoManager/preview.png)
 
 详细说明见 [`mihomoManager/README.md`](mihomoManager/README.md)。

@@ -6,6 +6,10 @@
 
 插件基于 `showmethekey-cli` 获取 Wayland 环境下的键盘事件，并通过 DMS desktop widget 显示按键历史。插件采用事件驱动方式更新显示内容，不依赖 Desktop Command 的定时轮询机制。
 
+## 插件预览
+
+![skeyboardMonitor 预览](preview.png)
+
 ## 主要功能
 
 - 显示最近按下的键盘按键。
@@ -114,6 +118,7 @@ pkill -f showmethekey-cli
 skeyboardMonitor/
 ├── plugin.json
 ├── metadata.json
+├── preview.png
 ├── Widget.qml
 ├── Settings.qml
 ├── showkeyStreamer.py
@@ -126,6 +131,7 @@ skeyboardMonitor/
 |---|---|
 | `plugin.json` | DMS 插件清单，定义插件 ID、名称、描述、类型、组件入口和设置入口。 |
 | `metadata.json` | 插件元数据，通常与 `plugin.json` 保持一致，用于兼容 DMS 插件识别逻辑。 |
+| `preview.png` | 插件预览图，用于在 README 中展示插件实际效果。 |
 | `Widget.qml` | 插件显示层，负责接收按键状态、渲染桌面卡片、处理布局位置和样式。 |
 | `Settings.qml` | 插件设置页，提供显示时间、字体、位置、背景、边框等可调参数。 |
 | `showkeyStreamer.py` | 事件流脚本，负责调用 `showmethekey-cli`、解析键盘事件、维护按键历史和多屏共享状态。 |

@@ -6,6 +6,10 @@
 
 插件面向本机用户级 `mihomo.service`，默认读取 `http://127.0.0.1:9090` 上的 mihomo REST API。插件不会修改 `~/.config/mihomo/config.yaml`。
 
+## 插件预览
+
+![mihomoManager 预览](preview.png)
+
 ## 主要功能
 
 - 在 DankBar 中显示 `mihomo.service` 的运行状态。
@@ -113,6 +117,7 @@ curl -fsSIL -A 'clash.meta' '你的订阅链接'
 ```text
 mihomoManager/
 ├── plugin.json
+├── preview.png
 ├── MihomoManager.qml
 ├── MihomoManagerSettings.qml
 └── README.md
@@ -123,6 +128,7 @@ mihomoManager/
 | 文件 | 作用 |
 |---|---|
 | `plugin.json` | DMS 插件清单，定义插件 ID、名称、类型、入口组件、设置页、权限和兼容版本等信息。 |
+| `preview.png` | 插件预览图，用于在 README 中展示插件实际效果。 |
 | `MihomoManager.qml` | 插件主组件，负责 DankBar / Control Center 显示、服务控制、API 读取、节点切换、测速和流量展示。 |
 | `MihomoManagerSettings.qml` | 插件设置页，提供服务名、API 地址、代理组、订阅链接、测速地址和显示选项等设置。 |
 | `README.md` | 插件说明文档。 |
