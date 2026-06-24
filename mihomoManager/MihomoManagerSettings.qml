@@ -56,19 +56,11 @@ PluginSettings {
     }
 
     StringSetting {
-        settingKey: "dashboardUrl"
-        label: "Dashboard URL"
-        description: "点击打开面板时访问的地址。没有本地 UI 时可以改成你使用的 Web 面板地址。"
-        placeholder: "http://127.0.0.1:9090/ui"
-        defaultValue: "http://127.0.0.1:9090/ui"
-    }
-
-    StringSetting {
         settingKey: "nodesPerPage"
         label: "Nodes Per Page"
-        description: "节点列表每页显示数量。默认 12；如果 bar/popout 空间足够，可以改成 20 或 30。"
-        placeholder: "12"
-        defaultValue: "12"
+        description: "节点列表采用双列排布。这里填写每页总节点数，默认 8，最小按 8 处理。"
+        placeholder: "8"
+        defaultValue: "8"
     }
 
     StringSetting {
@@ -113,16 +105,16 @@ PluginSettings {
 
     StringSetting {
         settingKey: "showExternalTrafficInBar"
-        label: "Show External Traffic In Bar"
-        description: "是否在 DankBar 上显示走外网的活跃连接流量。填 true 或 false；mihomo 关闭时会自动隐藏。"
+        label: "Show External Realtime Traffic In Bar"
+        description: "是否在 DankBar 上显示外网实时上传/下载速率。填 true 或 false；不会在下拉面板中显示实时流量模块。"
         placeholder: "true"
         defaultValue: "true"
     }
 
     StringSetting {
         settingKey: "externalTrafficIntervalMs"
-        label: "External Traffic Refresh Ms"
-        description: "外网流量刷新间隔，单位毫秒。默认 3000；太小会增加 mihomo API 调用频率。"
+        label: "External Realtime Traffic Refresh Ms"
+        description: "bar 外网实时速率刷新间隔，单位毫秒。默认 3000；最小按 1000 处理。"
         placeholder: "3000"
         defaultValue: "3000"
     }

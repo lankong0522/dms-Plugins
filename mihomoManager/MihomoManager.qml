@@ -14,11 +14,11 @@ PluginComponent {
     property string controllerUrl: pluginData.controllerUrl || "http://127.0.0.1:9090"
     property string mixedPort: pluginData.mixedPort || "7890"
     property string proxyGroup: pluginData.proxyGroup || "default"
-    property string dashboardUrl: pluginData.dashboardUrl || "http://127.0.0.1:9090/ui"
     property string subscriptionUrl: pluginData.subscriptionUrl || ""
     property string subscriptionUserAgent: pluginData.subscriptionUserAgent || "clash.meta"
     property string configPath: pluginData.configPath || "~/.config/mihomo/config.yaml"
-    property int nodesPerPage: parseInt(pluginData.nodesPerPage || "12")
+    property int nodesPerPage: Math.max(8, parseInt(pluginData.nodesPerPage || "8") || 8)
+    property int nodeColumns: 2
 
     property string serviceState: "checking"
     property bool serviceActive: serviceState === "active"
@@ -34,7 +34,7 @@ PluginComponent {
     property bool showTrafficInBar: String(pluginData.showTrafficInBar || "true") !== "false"
     property bool showExternalTrafficInBar: String(pluginData.showExternalTrafficInBar || "true") !== "false"
     property int externalTrafficIntervalMs: parseInt(pluginData.externalTrafficIntervalMs || "3000")
-    property string externalTrafficInfo: "代理关闭时不显示外网流量。"
+    property string externalTrafficInfo: "代理关闭时不显示外网实时速率。"
     property string externalTrafficShortInfo: ""
     property double externalTrafficLastUpload: 0
     property double externalTrafficLastDownload: 0
@@ -90,9 +90,10 @@ PluginComponent {
         }
     }
 
+
     onServiceActiveChanged: {
         if (!serviceActive) {
-            clearExternalTraffic("代理关闭，外网流量已隐藏。")
+            clearExternalTraffic("代理关闭，外网实时速率已隐藏。")
         } else if (showExternalTrafficInBar) {
             refreshExternalTraffic()
         }
@@ -100,7 +101,7 @@ PluginComponent {
 
     onShowExternalTrafficInBarChanged: {
         if (!showExternalTrafficInBar) {
-            clearExternalTraffic("外网流量显示已关闭。")
+            clearExternalTraffic("外网实时速率显示已关闭。")
         } else if (serviceActive) {
             refreshExternalTraffic()
         }
@@ -270,26 +271,10 @@ PluginComponent {
 
                 ActionButton {
                     width: parent.width
-                    iconName: "dashboard"
-                    label: "打开 Mihomo 面板"
-                    description: root.dashboardUrl
-                    onClicked: root.openDashboard()
-                }
-
-                ActionButton {
-                    width: parent.width
                     iconName: "data_usage"
                     label: "订阅剩余流量"
                     description: root.trafficInfo
                     onClicked: root.refreshTraffic()
-                }
-
-                ActionButton {
-                    width: parent.width
-                    iconName: "monitoring"
-                    label: "走外网实时流量"
-                    description: root.externalTrafficInfo
-                    onClicked: root.refreshExternalTraffic()
                 }
 
                 Row {
@@ -413,15 +398,23 @@ PluginComponent {
                     }
                 }
 
-                Repeater {
-                    model: root.visibleNodes()
+                Grid {
+                    id: nodeGrid
+                    width: parent.width
+                    columns: root.nodeColumns
+                    rowSpacing: Theme.spacingS
+                    columnSpacing: Theme.spacingS
 
-                    ActionButton {
-                        width: parent.width
-                        iconName: modelData === root.currentNode ? "radio_button_checked" : "radio_button_unchecked"
-                        label: modelData
-                        description: root.nodeActionDescription(modelData)
-                        onClicked: root.switchNode(modelData)
+                    Repeater {
+                        model: root.visibleNodes()
+
+                        ActionButton {
+                            width: (nodeGrid.width - nodeGrid.columnSpacing * (root.nodeColumns - 1)) / root.nodeColumns
+                            iconName: modelData === root.currentNode ? "radio_button_checked" : "radio_button_unchecked"
+                            label: modelData
+                            description: root.nodeActionDescription(modelData)
+                            onClicked: root.switchNode(modelData)
+                        }
                     }
                 }
             }
@@ -542,7 +535,7 @@ PluginComponent {
 
     function totalNodePages() {
         var count = filteredNodes().length
-        var perPage = nodesPerPage > 0 ? nodesPerPage : 12
+        var perPage = nodesPerPage > 0 ? nodesPerPage : 8
         return Math.max(1, Math.ceil(count / perPage))
     }
 
@@ -558,7 +551,7 @@ PluginComponent {
         if (nodePage < 0) {
             nodePage = 0
         }
-        var perPage = nodesPerPage > 0 ? nodesPerPage : 12
+        var perPage = nodesPerPage > 0 ? nodesPerPage : 8
         var start = nodePage * perPage
         return nodes.slice(start, start + perPage)
     }
@@ -571,9 +564,9 @@ PluginComponent {
     function nodeSummaryText() {
         var count = filteredNodes().length
         if (nodeFilter && nodeFilter.trim() !== "") {
-            return "共 " + nodeList.length + " 个节点，筛选到 " + count + " 个；每页 " + nodesPerPage + " 个。"
+            return "共 " + nodeList.length + " 个节点，筛选到 " + count + " 个；双列显示，每页 " + nodesPerPage + " 个。"
         }
-        return "共 " + nodeList.length + " 个节点；每页 " + nodesPerPage + " 个，可翻页或搜索。"
+        return "共 " + nodeList.length + " 个节点；双列显示，每页 " + nodesPerPage + " 个，可翻页或搜索。"
     }
 
     function prevNodePage() {
@@ -782,11 +775,6 @@ PluginComponent {
         lastResult = "正在测试本页 " + nodes.length + " 个节点延迟..."
     }
 
-    function openDashboard() {
-        Quickshell.execDetached(["xdg-open", dashboardUrl])
-        ToastService.showInfo("正在打开 Mihomo 面板")
-    }
-
     function shQuote(value) {
         return "'" + String(value || "").replace(/'/g, "'\"'\"'") + "'"
     }
@@ -805,9 +793,10 @@ PluginComponent {
         return n.toFixed(1) + " " + units[i]
     }
 
+
     function clearExternalTraffic(message) {
         externalTrafficShortInfo = ""
-        externalTrafficInfo = message || "代理关闭，外网流量已隐藏。"
+        externalTrafficInfo = message || "代理关闭，外网实时速率已隐藏。"
         externalTrafficLastUpload = 0
         externalTrafficLastDownload = 0
         externalTrafficLastTimeMs = 0
@@ -815,11 +804,11 @@ PluginComponent {
 
     function refreshExternalTraffic() {
         if (!showExternalTrafficInBar) {
-            clearExternalTraffic("外网流量显示已关闭。")
+            clearExternalTraffic("外网实时速率显示已关闭。")
             return
         }
         if (!serviceActive) {
-            clearExternalTraffic("代理关闭，外网流量已隐藏。")
+            clearExternalTraffic("代理关闭，外网实时速率已隐藏。")
             return
         }
         if (externalTrafficProcess.running) {
@@ -829,7 +818,7 @@ PluginComponent {
         externalTrafficProcess.output = ""
         var script = "CONTROLLER=" + shQuote(controllerUrl)
             + " python3 - <<'PY'\n"
-            + "import json, os, sys, urllib.request\n"
+            + "import json, os, urllib.request\n"
             + "controller = os.environ.get('CONTROLLER', 'http://127.0.0.1:9090').rstrip('/')\n"
             + "DIRECT_NAMES = {'DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'}\n"
             + "def human(n):\n"
@@ -848,7 +837,6 @@ PluginComponent {
             + "proxy_download = 0\n"
             + "proxy_count = 0\n"
             + "direct_count = 0\n"
-            + "top = []\n"
             + "for c in items:\n"
             + "    chains = c.get('chains') or []\n"
             + "    norm = {str(x).strip().upper() for x in chains}\n"
@@ -861,22 +849,11 @@ PluginComponent {
             + "    proxy_count += 1\n"
             + "    proxy_upload += up\n"
             + "    proxy_download += down\n"
-            + "    meta = c.get('metadata') or {}\n"
-            + "    host = meta.get('host') or meta.get('destinationIP') or meta.get('sourceIP') or ''\n"
-            + "    chain_text = ' > '.join(str(x) for x in chains[-2:])\n"
-            + "    top.append((up + down, host, chain_text))\n"
-            + "top.sort(reverse=True)\n"
             + "print('TOTALS:%d,%d,%d,%d' % (proxy_upload, proxy_download, proxy_count, direct_count))\n"
-            + "print(f'外网活跃连接：{proxy_count} 条；直连/拒绝：{direct_count} 条')\n"
-            + "print(f'外网连接累计：上传 {human(proxy_upload)}，下载 {human(proxy_download)}')\n"
-            + "details = []\n"
-            + "for _, host, chain_text in top[:3]:\n"
-            + "    if host:\n"
-            + "        details.append(host + (' · ' + chain_text if chain_text else ''))\n"
-            + "if details:\n"
-            + "    print('主要外网连接：' + '；'.join(details))\n"
+            + "print(f'外网实时速率采样：代理连接 {proxy_count} 条；直连/拒绝 {direct_count} 条')\n"
+            + "print(f'当前代理连接累计：上传 {human(proxy_upload)}，下载 {human(proxy_download)}')\n"
             + "PY"
-        externalTrafficInfo = "正在读取走外网流量..."
+        externalTrafficInfo = "正在读取外网实时速率..."
         externalTrafficProcess.command = ["bash", "-lc", script]
         externalTrafficProcess.running = true
     }
@@ -895,19 +872,20 @@ PluginComponent {
                 var fields = line.substring(7).split(",")
                 var up = Number(fields[0] || 0)
                 var down = Number(fields[1] || 0)
-                var count = Number(fields[2] || 0)
                 gotTotals = true
-                var shortText = "外网 " + count + "条"
+
+                var upRate = 0
+                var downRate = 0
                 if (externalTrafficLastTimeMs > 0 && nowMs > externalTrafficLastTimeMs && up >= externalTrafficLastUpload && down >= externalTrafficLastDownload) {
                     var elapsed = Math.max((nowMs - externalTrafficLastTimeMs) / 1000.0, 0.1)
-                    var upRate = (up - externalTrafficLastUpload) / elapsed
-                    var downRate = (down - externalTrafficLastDownload) / elapsed
-                    shortText = "外网 " + count + "条 ↑" + formatTrafficBytes(upRate) + "/s ↓" + formatTrafficBytes(downRate) + "/s"
+                    upRate = (up - externalTrafficLastUpload) / elapsed
+                    downRate = (down - externalTrafficLastDownload) / elapsed
                 }
+
                 externalTrafficLastUpload = up
                 externalTrafficLastDownload = down
                 externalTrafficLastTimeMs = nowMs
-                externalTrafficShortInfo = serviceActive ? shortText : ""
+                externalTrafficShortInfo = serviceActive ? "外网 ↑" + formatTrafficBytes(upRate) + "/s ↓" + formatTrafficBytes(downRate) + "/s" : ""
             } else {
                 visible.push(line)
             }
@@ -918,8 +896,7 @@ PluginComponent {
         return visible.join("\n")
     }
 
-    function refreshTraffic() {
-        trafficProcess.output = ""
+    function refreshTraffic() {        trafficProcess.output = ""
         var script = "SUB_URL=" + shQuote(subscriptionUrl)
             + " UA=" + shQuote(subscriptionUserAgent)
             + " CFG=" + shQuote(configPath)
@@ -1209,6 +1186,7 @@ PluginComponent {
         }
     }
 
+
     Process {
         id: externalTrafficProcess
         property string output: ""
@@ -1220,17 +1198,17 @@ PluginComponent {
         }
         onExited: exitCode => {
             if (!root.serviceActive) {
-                root.clearExternalTraffic("代理关闭，外网流量已隐藏。")
+                root.clearExternalTraffic("代理关闭，外网实时速率已隐藏。")
                 return
             }
             var cleaned = root.cleanExternalTrafficOutput(externalTrafficProcess.output).trim()
             if (cleaned === "") {
-                cleaned = exitCode === 0 ? "当前没有走外网的活跃连接。" : "外网流量读取失败，exit code: " + exitCode
+                cleaned = exitCode === 0 ? "当前没有走外网的活跃连接。" : "外网实时速率读取失败，exit code: " + exitCode
             }
             root.externalTrafficInfo = cleaned
             if (exitCode !== 0) {
                 root.externalTrafficShortInfo = ""
-                ToastService.showError("外网流量读取失败", "请检查 external-controller 和 /connections API")
+                ToastService.showError("外网实时速率读取失败", "请检查 external-controller 和 /connections API")
             }
         }
     }
@@ -1274,6 +1252,7 @@ PluginComponent {
         triggeredOnStart: false
         onTriggered: root.testCurrentDelay(false)
     }
+
 
     Timer {
         interval: Math.max(1000, root.externalTrafficIntervalMs)

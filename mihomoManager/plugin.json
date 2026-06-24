@@ -1,8 +1,8 @@
 {
   "id": "mihomoManager",
   "name": "mihomoManager",
-  "description": "Manage mihomo user service, TUN status, proxy tests, node paging/search, subscription traffic, node latency, auto-hidden outbound traffic display, and DMS bar font-size aware rendering.",
-  "version": "1.2.2",
+  "description": "Manage mihomo user service, TUN status, proxy tests, compact two-column node switching, subscription traffic, bar-only external realtime traffic, node latency, and DMS bar font-size aware rendering.",
+  "version": "1.2.3",
   "author": "local",
   "icon": "vpn_key",
   "type": "widget",
